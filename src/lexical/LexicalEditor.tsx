@@ -5,7 +5,7 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import './css/index.css';
 import { lexicalEditorNodes } from './nodes';
 import { AutoFocusPlugin, HistoryPlugin, RichTextPlugin, ToolbarPlugin } from './plugins';
-import { theme } from 'antd';
+import { theme } from './Theme';
 
 // Catch any errors that occur during Lexical updates and log them
 // or throw them as needed. If you don't throw them, Lexical will
