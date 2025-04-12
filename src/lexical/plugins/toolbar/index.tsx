@@ -17,6 +17,7 @@ import {
   UNDO_COMMAND,
 } from 'lexical';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { TablePlugin } from '../TablePlugin';
 
 
 const LowPriority = 1;
@@ -174,6 +175,8 @@ export const ToolbarPlugin = () => {
       >
         <i className='format redo' />
       </button>
+      <Divider />
+      <TablePlugin />
       <Divider />
       <Dropdown
         menu={{

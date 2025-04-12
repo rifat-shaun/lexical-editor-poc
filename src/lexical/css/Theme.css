@@ -20,3 +20,86 @@
 .lexical-bold-class {
   font-weight: bold;
 }
+
+:root {
+  --table-border-color: #bbb;
+}
+
+.table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 16px 0;
+  overflow-x: auto;
+  width: 100%;
+  table-layout: fixed;
+  border: 1px solid var(--table-border-color);
+}
+
+.table-row {
+  border-bottom: 1px solid var(--table-border-color);
+}
+
+.table-cell {
+  border: 1px solid var(--table-border-color);
+  padding: 8px;
+  min-width: 75px;
+  vertical-align: top;
+  text-align: left;
+  position: relative;
+}
+
+.table-header-cell {
+  background-color: #eeeeee;
+  font-weight: bold;
+  border: 1px solid var(--table-border-color);
+  padding: 8px;
+}
+
+.table-cell-resizer {
+  position: absolute;
+  right: -4px;
+  height: 100%;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 10;
+  top: 0;
+}
+
+.table-cell-action-button-container {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  display: none;
+  z-index: 11;
+}
+
+.table-cell:hover .table-cell-action-button-container {
+  display: block;
+}
+
+.table-cell-action-button {
+  background-color: #f1f1f1;
+  border: 1px solid var(--table-border-color);
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-selection {
+  background-color: rgba(24, 144, 255, 0.2);
+  border: 1px solid rgba(24, 144, 255, 0.5);
+  position: absolute;
+  z-index: 9;
+}
+
+.table-resize-ruler {
+  display: block;
+  position: absolute;
+  width: 1px;
+  background-color: rgb(60, 132, 244);
+  height: 100%;
+  top: 0;
+}
