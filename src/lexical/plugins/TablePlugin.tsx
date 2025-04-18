@@ -1,22 +1,78 @@
-/* eslint-disable */
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {
+  $createTableNodeWithDimensions,
+  TableCellNode,
+  TableNode,
+  TableRowNode,
+} from '@lexical/table';
+import { $insertNodeToNearestRoot } from '@lexical/utils';
+import { EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from 'lexical';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import TableIcon from '@mui/icons-material/TableChart';
+import React from 'react';
 
-import { useRef } from "react";
+export type CellEditorConfig = Readonly<{
+  namespace: string;
+  nodes?: ReadonlyArray<Klass<LexicalNode>>;
+  onError: (error: Error, editor: LexicalEditor) => void;
+  readOnly?: boolean;
+  theme?: EditorThemeClasses;
+}>;
 
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useEffect, useState } from "react";
-import { $insertNodeToNearestRoot } from "@lexical/utils";
-import { $createTableNodeWithDimensions } from "@lexical/table";
+export type CellContextShape = {
+  cellEditorConfig: null | CellEditorConfig;
+  cellEditorPlugins: null | React.ReactNode | Array<React.ReactNode>;
+  set: (
+    cellEditorConfig: null | CellEditorConfig,
+    cellEditorPlugins: null | React.ReactNode | Array<React.ReactNode>,
+  ) => void;
+};
 
-export const TablePlugin = () => {
+export const CellContext = createContext<CellContextShape>({
+  cellEditorConfig: null,
+  cellEditorPlugins: null,
+  set: () => {
+    // Empty
+  },
+});
+
+export function TableContext({ children }: { children: React.ReactNode }) {
+  const [contextValue, setContextValue] = useState<{
+    cellEditorConfig: null | CellEditorConfig;
+    cellEditorPlugins: null | React.ReactNode | Array<React.ReactNode>;
+  }>({
+    cellEditorConfig: null,
+    cellEditorPlugins: null,
+  });
+  return (
+    <CellContext.Provider
+      value={useMemo(
+        () => ({
+          cellEditorConfig: contextValue.cellEditorConfig,
+          cellEditorPlugins: contextValue.cellEditorPlugins,
+          set: (cellEditorConfig, cellEditorPlugins) => {
+            setContextValue({ cellEditorConfig, cellEditorPlugins });
+          },
+        }),
+        [contextValue.cellEditorConfig, contextValue.cellEditorPlugins],
+      )}
+    >
+      {children}
+    </CellContext.Provider>
+  );
+}
+
+type TInserTableDialogProps = {
+  activeEditor: LexicalEditor;
+};
+
+export const InserTableDialog = ({ activeEditor }: TInserTableDialogProps) => {
   const initialRows = 5;
   const initialCols = 10;
   const maxRows = 20;
   const maxCols = 20;
 
-  const [editor] = useLexicalComposerContext();
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState(1);
-  const [selectedCols, setSelectedCols] = useState(1);
   const [hoveredRows, setHoveredRows] = useState(1);
   const [hoveredCols, setHoveredCols] = useState(1);
   const [visibleRows, setVisibleRows] = useState(5);
@@ -26,8 +82,6 @@ export const TablePlugin = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const resetTableState = () => {
-    setSelectedRows(1);
-    setSelectedCols(1);
     setHoveredRows(1);
     setHoveredCols(1);
     setInputRows('1');
@@ -86,9 +140,9 @@ export const TablePlugin = () => {
   };
 
   const handleInsertTable = (rowsToInsert: number, colsToInsert: number) => {
-    if (!editor || rowsToInsert < 1 || colsToInsert < 1) return;
+    if (!activeEditor || rowsToInsert < 1 || colsToInsert < 1) return;
 
-    editor.update(() => {
+    activeEditor.update(() => {
       const tableNode = $createTableNodeWithDimensions(rowsToInsert, colsToInsert, {
         rows: true,
         columns: false,
@@ -137,7 +191,7 @@ export const TablePlugin = () => {
         className='toolbar-item spaced'
         aria-label='Insert Table'
       >
-        hello
+        <TableIcon />
       </button>
 
       {isTableDropdownOpen && (
@@ -175,8 +229,6 @@ export const TablePlugin = () => {
                 onClick={() => {
                   const rows = Math.min(Math.max(parseInt(inputRows) || 1, 1), maxRows);
                   const cols = Math.min(Math.max(parseInt(inputCols) || 1, 1), maxCols);
-                  setSelectedRows(rows);
-                  setSelectedCols(cols);
                   handleTableSelection();
                   handleInsertTable(rows, cols);
                 }}
@@ -209,8 +261,6 @@ export const TablePlugin = () => {
                   }`}
                   onMouseEnter={() => handleCellHover(row, col)}
                   onClick={() => {
-                    setSelectedRows(row);
-                    setSelectedCols(col);
                     handleTableSelection();
                     handleInsertTable(row, col);
                   }}
@@ -226,4 +276,26 @@ export const TablePlugin = () => {
       )}
     </div>
   );
+};
+
+export const TablePlugin = ({
+  cellEditorConfig,
+  children,
+}: {
+  cellEditorConfig: CellEditorConfig;
+  children: React.ReactNode | Array<React.ReactNode>;
+}): React.ReactNode | null => {
+  const [editor] = useLexicalComposerContext();
+  const cellContext = useContext(CellContext);
+  useEffect(() => {
+    if (!editor.hasNodes([TableNode, TableRowNode, TableCellNode])) {
+      throw new Error(
+        'TablePlugin: TableNode, TableRowNode, or TableCellNode is not registered on editor',
+      );
+    }
+  }, [editor]);
+  useEffect(() => {
+    cellContext.set(cellEditorConfig, children);
+  }, [cellContext, cellEditorConfig, children]);
+  return null;
 };

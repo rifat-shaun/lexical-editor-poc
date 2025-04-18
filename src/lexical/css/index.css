@@ -1,5 +1,5 @@
 @import './Theme.css';
-@import './Toolbar.css';
+@import './toolbar.css';
 
 @import 'https://fonts.googleapis.com/css?family=Reenie+Beanie';
 
@@ -206,7 +206,7 @@ pre::-webkit-scrollbar-thumb {
   box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.test-recorder-button+.test-recorder-button {
+.test-recorder-button + .test-recorder-button {
   margin-left: 4px;
 }
 
@@ -874,7 +874,7 @@ i.page-break,
 }
 
 @media screen and (max-width: 1100px) {
-  .dialog-dropdown>.dropdown-button-text {
+  .dialog-dropdown > .dropdown-button-text {
     display: flex !important;
   }
 
@@ -1362,7 +1362,7 @@ i.page-break,
 
 .table-cell-action-button-container {
   position: absolute;
-  top: -18px;
+  top: -12px;
   left: -90px;
   will-change: transform;
 }
@@ -1569,7 +1569,7 @@ button.toolbar-item.active i {
 
 .toolbar-item.font-family .text {
   display: block;
-  max-width: 40px;
+  max-width: 120px;
 }
 
 .toolbar .code-language {
@@ -1731,7 +1731,6 @@ button.toolbar-item.active i {
 }
 
 @keyframes octocat-wave {
-
   0%,
   100% {
     transform: rotate(0);
@@ -1838,6 +1837,7 @@ button.item.dropdown-item-active i {
 
 .panel-editor {
   padding: 0 24px;
+  margin-right: 6px;
   overflow: auto !important;
 }
 
@@ -2312,4 +2312,130 @@ button.item.dropdown-item-active i {
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
+}
+
+.panel-editor::-webkit-scrollbar {
+  width: 8px !important;
+  height: var(--scroll-bar-size);
+}
+
+.panel-editor::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  cursor: pointer !important;
+}
+
+.panel-editor::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.panel-editor::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+span.editor-image {
+  cursor: default;
+  display: inline-block;
+  position: relative;
+  user-select: none;
+}
+
+.editor-image img {
+  max-width: 100%;
+  cursor: default;
+}
+
+.editor-image img.focused {
+  outline: 2px solid rgb(60, 132, 244);
+  user-select: none;
+}
+
+.editor-image img.focused.draggable {
+  cursor: grab;
+}
+
+.editor-image img.focused.draggable:active {
+  cursor: grabbing;
+}
+
+.editor-image .image-caption-container .tree-view-output {
+  margin: 0;
+  border-radius: 0;
+}
+
+.editor-image .image-edit-button {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  background-size: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 35px;
+  height: 35px;
+  vertical-align: -0.25em;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-image .image-edit-button:hover {
+  background-color: rgba(60, 132, 244, 0.1);
+}
+
+.image-resizer {
+  display: block;
+  width: 7px;
+  height: 7px;
+  position: absolute;
+  background-color: rgb(60, 132, 244);
+  border: 1px solid #fff;
+}
+
+.image-resizer.image-resizer-n {
+  top: -6px;
+  left: 48%;
+  cursor: n-resize;
+}
+
+.image-resizer.image-resizer-ne {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+
+.image-resizer.image-resizer-e {
+  bottom: 48%;
+  right: -6px;
+  cursor: e-resize;
+}
+
+.image-resizer.image-resizer-se {
+  bottom: -2px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+.image-resizer.image-resizer-s {
+  bottom: -2px;
+  left: 48%;
+  cursor: s-resize;
+}
+
+.image-resizer.image-resizer-sw {
+  bottom: -2px;
+  left: -6px;
+  cursor: sw-resize;
+}
+
+.image-resizer.image-resizer-w {
+  bottom: 48%;
+  left: -6px;
+  cursor: w-resize;
+}
+
+.image-resizer.image-resizer-nw {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
 }

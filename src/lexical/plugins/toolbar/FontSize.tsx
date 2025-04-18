@@ -1,20 +1,17 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 import { $patchStyleText } from '@lexical/selection';
 import { AddRounded, RemoveRounded } from '@mui/icons-material';
 import { $getSelection, LexicalEditor } from 'lexical';
 import * as React from 'react';
 
-import './fontSize.css';
+import '../../css/FontSize.css';
+import { FontSizeDropdown } from '../../ui/FontSizeDropdown';
 
-const MIN_ALLOWED_FONT_SIZE = 8;
-const MAX_ALLOWED_FONT_SIZE = 72;
+const MIN_ALLOWED_FONT_SIZE = 1;
+const MAX_ALLOWED_FONT_SIZE = 500;
 const DEFAULT_FONT_SIZE = 15;
+
+// Font size options for dropdown
+const FONT_SIZE_OPTIONS = [8, 10, 12, 14, 15, 16, 20, 24, 28, 36, 48, 72, 96];
 
 // eslint-disable-next-line no-shadow
 enum updateFontSizeType {
@@ -32,7 +29,6 @@ export default function FontSize({
   editor: LexicalEditor;
 }) {
   const [inputValue, setInputValue] = React.useState<string>(selectionFontSize);
-  const [inputChangeFlag, setInputChangeFlag] = React.useState<boolean>(false);
 
   /**
    * Calculates the new font size based on the update type.
@@ -48,53 +44,13 @@ export default function FontSize({
       return currentFontSize;
     }
 
-    let updatedFontSize: number = currentFontSize;
+    const updatedFontSize: number = currentFontSize;
     switch (updateType) {
       case updateFontSizeType.decrement:
-        switch (true) {
-          case currentFontSize > MAX_ALLOWED_FONT_SIZE:
-            updatedFontSize = MAX_ALLOWED_FONT_SIZE;
-            break;
-          case currentFontSize >= 48:
-            updatedFontSize -= 12;
-            break;
-          case currentFontSize >= 24:
-            updatedFontSize -= 4;
-            break;
-          case currentFontSize >= 14:
-            updatedFontSize -= 2;
-            break;
-          case currentFontSize >= 9:
-            updatedFontSize -= 1;
-            break;
-          default:
-            updatedFontSize = MIN_ALLOWED_FONT_SIZE;
-            break;
-        }
-        break;
+        return Math.max(MIN_ALLOWED_FONT_SIZE, currentFontSize - 1);
 
       case updateFontSizeType.increment:
-        switch (true) {
-          case currentFontSize < MIN_ALLOWED_FONT_SIZE:
-            updatedFontSize = MIN_ALLOWED_FONT_SIZE;
-            break;
-          case currentFontSize < 12:
-            updatedFontSize += 1;
-            break;
-          case currentFontSize < 20:
-            updatedFontSize += 2;
-            break;
-          case currentFontSize < 36:
-            updatedFontSize += 4;
-            break;
-          case currentFontSize <= 60:
-            updatedFontSize += 12;
-            break;
-          default:
-            updatedFontSize = MAX_ALLOWED_FONT_SIZE;
-            break;
-        }
-        break;
+        return Math.min(MAX_ALLOWED_FONT_SIZE, currentFontSize + 1);
 
       default:
         break;
@@ -130,38 +86,20 @@ export default function FontSize({
     [editor],
   );
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const inputValueNumber = Number(inputValue);
-
-    if (e.key === 'Tab') {
-      return;
-    }
-    if (['e', 'E', '+', '-'].includes(e.key) || isNaN(inputValueNumber)) {
-      e.preventDefault();
-      setInputValue('');
-      return;
-    }
-    setInputChangeFlag(true);
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      e.preventDefault();
-
-      updateFontSizeByInputValue(inputValueNumber);
-    }
-  };
-
-  const handleInputBlur = () => {
-    if (inputValue !== '' && inputChangeFlag) {
-      const inputValueNumber = Number(inputValue);
-      updateFontSizeByInputValue(inputValueNumber);
-    }
-  };
-
   const handleButtonClick = (updateType: updateFontSizeType) => {
     if (inputValue !== '') {
       const nextFontSize = calculateNextFontSize(Number(inputValue), updateType);
+      setInputValue(String(nextFontSize));
       updateFontSizeInSelection(String(nextFontSize) + 'px', null);
     } else {
       updateFontSizeInSelection(null, updateType);
+    }
+  };
+
+  const handleSelectChange = (newValue: string) => {
+    setInputValue(newValue);
+    if (newValue !== '') {
+      updateFontSizeByInputValue(Number(newValue));
     }
   };
 
@@ -175,7 +113,6 @@ export default function FontSize({
 
     setInputValue(String(updatedFontSize));
     updateFontSizeInSelection(String(updatedFontSize) + 'px', null);
-    setInputChangeFlag(false);
   };
 
   React.useEffect(() => {
@@ -190,21 +127,15 @@ export default function FontSize({
           disabled || (selectionFontSize !== '' && Number(inputValue) <= MIN_ALLOWED_FONT_SIZE)
         }
         onClick={() => handleButtonClick(updateFontSizeType.decrement)}
-        className='format minus-icon toolbar-item font-decrement text-black-200 dark:text-black-300 disabled:text-black-500 disabled:dark:text-black-600'
+        className='format minus-icon toolbar-item spaced text-black-200 dark:text-black-300 disabled:text-black-500 disabled:dark:text-black-600'
       >
-        <RemoveRounded />
+        <RemoveRounded sx={{ fontSize: '18px' }} />
       </button>
 
-      <input
-        type='number'
-        value={inputValue}
-        disabled={disabled}
-        className='toolbar-item font-size-input p-1 bg-white text-black dark:bg-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 disabled:bg-gray-200 disabled:text-gray-500 disabled:dark:bg-gray-700 disabled:dark:text-gray-400'
-        min={MIN_ALLOWED_FONT_SIZE}
-        max={MAX_ALLOWED_FONT_SIZE}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyPress}
-        onBlur={handleInputBlur}
+      <FontSizeDropdown
+        options={FONT_SIZE_OPTIONS.map((size) => size.toString())}
+        onChange={handleSelectChange}
+        defaultValue={inputValue}
       />
 
       <button
@@ -213,9 +144,9 @@ export default function FontSize({
           disabled || (selectionFontSize !== '' && Number(inputValue) >= MAX_ALLOWED_FONT_SIZE)
         }
         onClick={() => handleButtonClick(updateFontSizeType.increment)}
-        className='format minus-icon toolbar-item font-decrement text-black-200 dark:text-black-300 disabled:text-black-500 disabled:dark:text-black-600'
+        className='format minus-icon toolbar-item spaced text-black-200 dark:text-black-300 disabled:text-black-500 disabled:dark:text-black-600'
       >
-        <AddRounded />
+        <AddRounded sx={{ fontSize: '18px' }} />
       </button>
     </div>
   );

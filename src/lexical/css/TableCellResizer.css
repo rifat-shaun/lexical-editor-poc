@@ -1,0 +1,32 @@
+.TableCellResizer__resizer {
+  position: absolute;
+  z-index: 10;
+  transition: background-color 0.1s ease;
+  touch-action: none;
+}
+
+.TableCellResizer__ui {
+  position: absolute;
+  z-index: 10;
+}
+
+.TableCellResizer__resizer.max-width-reached {
+  background-color: rgba(255, 76, 76, 0.3) !important;
+}
+
+/* Ensure tables maintain their position when resizing */
+.table-container {
+  position: relative;
+}
+
+.table-container table {
+  position: relative;
+  box-sizing: border-box;
+}
+
+@media (pointer: coarse) {
+  .TableCellResizer__resizer {
+    background-color: #adf;
+    mix-blend-mode: color;
+  }
+}
